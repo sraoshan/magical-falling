@@ -3,6 +3,7 @@
   "title": "Magical Falling",
   "description": "Landing page narrativa interativa com PIXI",
   "version": "0.0.1",
+  "type": "module",
 
   "authors": [
     {
