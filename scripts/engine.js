@@ -265,7 +265,7 @@ function playRandomSound(
 
 }
 
-async function preloadSounds() {
+async function warmupSounds() {
 
   const paths = [];
 
@@ -274,28 +274,38 @@ async function preloadSounds() {
     Object.values(CLAIM_THEMES)
   ) {
 
-    const claim =
-      theme.sounds?.claim || [];
-
-    const destroy =
-      theme.sounds?.destroy || [];
-
     paths.push(
-      ...claim,
-      ...destroy
+      ...(theme.sounds?.claim || []),
+      ...(theme.sounds?.destroy || [])
     );
 
   }
 
   for (const path of paths) {
 
-    const audio =
-      new Audio(path);
+    try {
 
-    audio.preload =
-      "auto";
+      await foundry.audio.AudioHelper.play({
 
-    audio.load();
+        src: path,
+
+        volume: 0,
+
+        autoplay: true,
+
+        loop: false
+
+      }, false);
+
+    } catch (err) {
+
+      console.warn(
+        "Sound warmup failed:",
+        path,
+        err
+      );
+
+    }
 
   }
 
@@ -329,7 +339,7 @@ export class MagicalFallingEngine {
 
     this.enabled = true;
 
-    await preloadSounds();
+    await warmupSounds();
 
     this.container =
       new PIXI.Container();
