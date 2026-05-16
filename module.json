@@ -13,5 +13,12 @@
   ],
   "esmodules": [
     "scripts/main.js"
-  ]
+  ],
+
+  "manifest":
+"https://raw.githubusercontent.com/sraoshan/magical-falling/main/module.json",
+
+"download":
+"https://github.com/sraoshan/magical-falling/releases/latest/download/module.zip"
+
 }
