@@ -2,40 +2,53 @@ export const FLOATIES = [
 
   {
 
-    id: "tarf_mirror_01",
+    id: "itemTarf1",
 
     owner: "tarf",
 
     image:
-      "modules/magical-landing/assets/floaties/tarf/mirror.webp",
+      "modules/magical-falling/assets/items/choco_tarf.webp",
 
-    weight: 10,
+    weight: 10
 
-    tags: [
-      "mirror",
-      "water",
-      "memory"
-    ],
+  },
 
-    interaction: {
+  {
 
-      leftClick: {
-        type: "themeEffect"
-      },
+    id: "itemTarf2",
 
-      rightClick: {
-        type: "dialogue"
-      }
+    owner: "tarf",
 
-    },
+    image:
+      "modules/magical-falling/assets/items/espelho_tarf.webp",
 
-    spawn: {
+    weight: 10
 
-      rotationStyle: "gentle",
+  },
 
-      driftStyle: "float"
+  {
 
-    }
+    id: "itemTarf3",
+
+    owner: "tarf",
+
+    image:
+      "modules/magical-falling/assets/items/esgrima_tarf.webp",
+
+    weight: 10
+
+  },
+
+  {
+
+    id: "itemTarf4",
+
+    owner: "tarf",
+
+    image:
+      "modules/magical-falling/assets/items/costura_tarf.webp",
+
+    weight: 10
 
   }
 
