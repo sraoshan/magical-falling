@@ -265,6 +265,42 @@ function playRandomSound(
 
 }
 
+async function preloadSounds() {
+
+  const paths = [];
+
+  for (
+    const theme of
+    Object.values(CLAIM_THEMES)
+  ) {
+
+    const claim =
+      theme.sounds?.claim || [];
+
+    const destroy =
+      theme.sounds?.destroy || [];
+
+    paths.push(
+      ...claim,
+      ...destroy
+    );
+
+  }
+
+  for (const path of paths) {
+
+    const audio =
+      new Audio(path);
+
+    audio.preload =
+      "auto";
+
+    audio.load();
+
+  }
+
+}
+
 export class MagicalFallingEngine {
 
   constructor() {
@@ -292,6 +328,8 @@ export class MagicalFallingEngine {
     if (this.enabled) return;
 
     this.enabled = true;
+
+    await preloadSounds();
 
     this.container =
       new PIXI.Container();
