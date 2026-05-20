@@ -796,7 +796,10 @@ console.log(
   config
 );
 
-if (theme) {
+if (
+  theme &&
+  config?.baseSounds
+) {
 
   foundry.audio.AudioHelper.play({
 
