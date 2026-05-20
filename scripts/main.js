@@ -5,6 +5,32 @@ let engine = null;
 
 Hooks.once("init", () => {
 
+
+    game.settings.register(
+  "magical-falling",
+  "landingScene",
+
+  {
+
+    name:
+      "Landing Scene",
+
+    hint:
+      "Scene where magical floaties appear.",
+
+    scope: "world",
+
+    config: true,
+
+    type: String,
+
+    default: "",
+
+    choices: {}
+
+  }
+);
+
     game.settings.register(
     "magical-falling",
     "minScale",
@@ -197,9 +223,50 @@ Hooks.once("init", () => {
 
 });
 
+Hooks.once("ready", () => {
+
+  const sceneChoices = {};
+
+  for (
+    const scene of game.scenes
+  ) {
+
+    sceneChoices[
+      scene.id
+    ] = scene.name;
+
+  }
+
+  game.settings.settings.get(
+    "magical-falling.landingScene"
+  ).choices =
+    sceneChoices;
+
+});
+
 Hooks.on("canvasReady", async () => {
 
-  engine = new MagicalFallingEngine();
+  if (engine) {
+
+    engine.stop();
+
+    engine = null;
+
+  }
+
+  const targetScene =
+    game.settings.get(
+      "magical-falling",
+      "landingScene"
+    );
+
+  if (
+    canvas.scene?.id !==
+    targetScene
+  ) return;
+
+  engine =
+    new MagicalFallingEngine();
 
   engine.start();
 

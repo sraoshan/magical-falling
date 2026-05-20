@@ -13,6 +13,139 @@ function getPlayerTheme() {
 
 }
 
+async function warmupSingleSound(
+  theme,
+  type
+) {
+
+  const config =
+    CLAIM_THEMES[theme];
+
+  if (!config) return;
+
+  const allSounds =
+    config.sounds?.[type];
+
+  const loaded =
+    config.loadedSounds?.[type];
+
+  if (
+    !allSounds?.length
+  ) return;
+
+  const base =
+  config.baseSounds?.[type] || [];
+
+  const remaining =
+  allSounds.filter(
+
+    s =>
+
+      !loaded.includes(s)
+
+      &&
+
+      !base.includes(s)
+
+  );
+
+  if (!remaining.length)
+    return;
+
+  const path =
+    pick(remaining);
+
+  try {
+
+    await foundry.audio.AudioHelper.play({
+
+      src: path,
+
+      volume: 0,
+
+      autoplay: true,
+
+      loop: false
+
+    }, false);
+
+    loaded.push(path);
+
+console.log(
+
+  "[Magical Falling] Warmed:",
+
+  theme,
+
+  type,
+
+  path
+
+);
+
+  } catch (err) {
+
+    console.warn(
+      "Warmup failed:",
+      path,
+      err
+    );
+
+  }
+
+}
+
+
+  function beginProgressiveWarmup() {
+
+  const theme =
+    getPlayerTheme();
+
+  if (!theme) return;
+
+  if (
+    !CLAIM_THEMES[theme]
+  ) return;
+
+  warmupSingleSound(
+    theme,
+    "claim"
+  );
+
+  warmupSingleSound(
+    theme,
+    "destroy"
+  );
+
+  (async () => {
+
+  while (true) {
+
+    await warmupSingleSound(
+      theme,
+      "claim"
+    );
+
+    await warmupSingleSound(
+      theme,
+      "destroy"
+    );
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          3000
+        )
+    );
+
+  }
+
+})();
+
+}
+
+
 const CLAIM_THEMES = {
 
   tarf: {
@@ -27,7 +160,33 @@ const CLAIM_THEMES = {
     blendMode:
       PIXI.BLEND_MODES.ADD,
 
+    baseSounds: {
+
+      claim: [
+
+  "modules/magical-falling/assets/sounds/tarf/bubble_1.opus"
+
+],
+
+      destroy: [
+
+  "modules/magical-falling/assets/sounds/tarf/pop_1.opus"
+
+]
+
+},
+
+loadedSounds: {
+
+  claim: [],
+
+  destroy: []
+
+},
+
       sounds: {
+
+        
 
   claim: [
 
@@ -112,8 +271,124 @@ sprite.y -= 0.8;
 
   sirius: {
 
-    image:
-      "modules/magical-falling/assets/claims/orbe_sirius.webp",
+  underlayImage:
+    "modules/magical-falling/assets/claims/nebula_sirius.webp",
+
+  overlayImage:
+    "modules/magical-falling/assets/claims/smoke_sirius.webp",
+
+    baseSounds: {
+
+  claim: [
+
+    "modules/magical-falling/assets/sounds/sirius/mag1.opus"
+
+  ],
+
+  destroy: [
+
+    "modules/magical-falling/assets/sounds/sirius/dark1.opus",
+    
+
+  ]
+
+},
+
+sounds: {
+
+  claim: [
+
+    "modules/magical-falling/assets/sounds/sirius/mag1.opus",
+    "modules/magical-falling/assets/sounds/sirius/mag2.opus",
+    "modules/magical-falling/assets/sounds/sirius/mag3.opus",
+    "modules/magical-falling/assets/sounds/sirius/mag4.opus",
+    "modules/magical-falling/assets/sounds/sirius/mag5.opus",
+    "modules/magical-falling/assets/sounds/sirius/mag6.opus"
+
+  ],
+
+  destroy: [
+
+    "modules/magical-falling/assets/sounds/sirius/dark1.opus",
+    "modules/magical-falling/assets/sounds/sirius/dark2.opus",
+    "modules/magical-falling/assets/sounds/sirius/dark3.opus",
+    "modules/magical-falling/assets/sounds/sirius/dark4.opus",
+    "modules/magical-falling/assets/sounds/sirius/dark5.opus",
+    "modules/magical-falling/assets/sounds/sirius/dark6.opus"
+
+  ]
+
+},
+
+loadedSounds: {
+
+  claim: [],
+
+  destroy: []
+
+},
+
+overlayAnimation(
+  overlay,
+  underlay
+) {
+
+  overlay.targetScale =
+  1.2;
+
+if (underlay) {
+
+  underlay.baseScale =
+    1.25;
+
+}
+
+  if (underlay) {
+
+    underlay.rotation +=
+      0.004;
+
+    const pulse =
+      1 +
+      Math.sin(
+        performance.now() *
+        0.003
+      ) * 0.04;
+
+    underlay.scale.x =
+  underlay.baseScale *
+  pulse;
+
+underlay.scale.y =
+  underlay.scale.x;
+
+    underlay.alpha =
+      0.75 + Math.sin(
+        performance.now() *
+        0.004
+      ) * 0.08;
+
+  }
+
+  overlay.rotation -=
+    0.01;
+
+  overlay.scale.x +=
+    Math.sin(
+      performance.now() *
+      0.008
+    ) * 0.002;
+
+  overlay.scale.y =
+    overlay.scale.x;
+
+  overlay.alpha =
+    0.55 + Math.sin(
+      performance.now() *
+      0.012
+    ) * 0.06;
+
+},
 
     alpha: 0.7,
 
@@ -130,9 +405,154 @@ sprite.y -= 0.8;
 
     destroyAnimation(sprite) {
 
-      sprite.rotation += 0.08;
+      const overlay =
+  sprite.claimOverlay;
 
-      sprite.alpha -= 0.05;
+const underlay =
+  sprite.claimUnderlay;
+
+/* =====================
+   CHAOS
+===================== */
+
+sprite.rotation +=
+  rand(-0.25, 0.25);
+
+sprite.x +=
+  rand(-2, 2);
+
+sprite.y +=
+  rand(-2, 2);
+
+/* =====================
+   FLICKER
+===================== */
+
+sprite.alpha *= 0.9;
+
+sprite.alpha +=
+  Math.random() * 0.08;
+
+/* =====================
+   COLLAPSE
+===================== */
+
+sprite.scale.x *=
+  0.9;
+
+sprite.scale.y =
+  sprite.scale.x;
+
+/* =====================
+   DARKNESS
+===================== */
+
+sprite.tint =
+  0x220033;
+
+/* =====================
+   OVERLAY CHAOS
+===================== */
+
+if (overlay) {
+
+  overlay.rotation +=
+    0.08;
+
+  overlay.scale.x *=
+    1.04;
+
+  overlay.scale.y =
+    overlay.scale.x;
+
+  overlay.alpha *=
+    0.96;
+
+}
+
+/* =====================
+   UNDERLAY PULSE
+===================== */
+
+if (underlay) {
+
+  underlay.rotation -=
+    0.04;
+
+  underlay.scale.x *=
+    1.02;
+
+  underlay.scale.y =
+    underlay.scale.x;
+
+}
+
+/* =====================
+   FAKE DISSOLVE
+===================== */
+
+if (
+  Math.random() < 0.15
+) {
+
+  const ghost =
+    new PIXI.Sprite(
+      sprite.texture
+    );
+
+  ghost.anchor.set(0.5);
+
+  ghost.x =
+    sprite.x +
+    rand(-12, 12);
+
+  ghost.y =
+    sprite.y +
+    rand(-12, 12);
+
+  ghost.scale.set(
+    sprite.scale.x * 0.9
+  );
+
+  ghost.alpha =
+    0.18;
+
+  ghost.tint =
+    0x110022;
+
+  sprite.parent.addChild(
+    ghost
+  );
+
+  const fade = () => {
+
+    ghost.alpha -= 0.03;
+
+    ghost.scale.x *=
+      0.97;
+
+    ghost.scale.y =
+      ghost.scale.x;
+
+    if (
+      ghost.alpha <= 0
+    ) {
+
+      PIXI.Ticker.shared.remove(
+        fade
+      );
+
+      ghost.destroy();
+
+    }
+
+  };
+
+  PIXI.Ticker.shared.add(
+    fade
+  );
+
+}
 
     }
 
@@ -198,7 +618,10 @@ async function applyClaimVisual(
 if (!config) return;
 
 const path =
-  config.image;
+
+  config.overlayImage
+
+  || config.image;
 
   if (!path) return;
 
@@ -206,6 +629,44 @@ const path =
     await foundry.canvas.loadTexture(
       path
     );
+
+
+  if (theme === "sirius") {
+
+  const underTexture =
+    await foundry.canvas.loadTexture(
+
+      "modules/magical-falling/assets/claims/nebula_sirius.webp"
+
+    );
+
+  const underlay =
+    new PIXI.Sprite(
+      underTexture
+    );
+
+  underlay.anchor.set(0.5);
+
+  underlay.alpha = 0.95;
+
+  underlay.scale.set(1);
+
+  underlay.blendMode =
+    PIXI.BLEND_MODES.MULTIPLY;
+
+  underlay.x = 0;
+
+  underlay.y = 0;
+
+  sprite.addChildAt(
+    underlay,
+    0
+  );
+
+  sprite.claimUnderlay =
+    underlay;
+
+}
 
   const overlay =
     new PIXI.Sprite(texture);
@@ -235,6 +696,16 @@ overlay.wobbleOffset =
   overlay.blendMode =
   config.blendMode;
 
+  if (theme === "sirius") {
+
+  overlay.blendMode =
+    PIXI.BLEND_MODES.SCREEN;
+
+  overlay.alpha =
+    0.6;
+
+}
+
 
 
 
@@ -244,76 +715,46 @@ overlay.wobbleOffset =
     overlay;
 
 }
-
 function playRandomSound(
-  sounds
+  theme,
+  type
 ) {
 
-  if (
-    !sounds?.length
-  ) return;
+  const config =
+    CLAIM_THEMES[theme];
+
+  if (!config) return;
+
+  const sounds =
+    config.loadedSounds?.[type];
+
+  if (!sounds?.length)
+    return;
 
   const path =
     pick(sounds);
 
   foundry.audio.AudioHelper.play({
+
     src: path,
+
     volume: 0.4,
+
     autoplay: true,
+
     loop: false
+
   });
 
 }
 
-async function warmupSounds() {
-
-  const paths = [];
-
-  for (
-    const theme of
-    Object.values(CLAIM_THEMES)
-  ) {
-
-    paths.push(
-      ...(theme.sounds?.claim || []),
-      ...(theme.sounds?.destroy || [])
-    );
-
-  }
-
-  for (const path of paths) {
-
-    try {
-
-      await foundry.audio.AudioHelper.play({
-
-        src: path,
-
-        volume: 0,
-
-        autoplay: true,
-
-        loop: false
-
-      }, false);
-
-    } catch (err) {
-
-      console.warn(
-        "Sound warmup failed:",
-        path,
-        err
-      );
-
-    }
-
-  }
-
-}
 
 export class MagicalFallingEngine {
 
   constructor() {
+
+    this.audioUnlocked =
+      false;
 
     this.lastSpawnPositions = [];
 
@@ -339,7 +780,53 @@ export class MagicalFallingEngine {
 
     this.enabled = true;
 
-    await warmupSounds();
+    const theme =
+  getPlayerTheme();
+  
+  const config =
+  CLAIM_THEMES[theme];
+
+  console.log(
+  "THEME:",
+  theme
+);
+
+console.log(
+  "CONFIG:",
+  config
+);
+
+if (theme) {
+
+  foundry.audio.AudioHelper.play({
+
+    src:
+     config.baseSounds.claim[0]
+
+  });
+
+  foundry.audio.AudioHelper.play({
+
+    src:
+      config.baseSounds.destroy[0],
+
+    volume: 0,
+
+    autoplay: true,
+
+    loop: false
+
+  });
+
+  config.loadedSounds.claim.push(
+  config.baseSounds.claim[0]
+);
+
+config.loadedSounds.destroy.push(
+  config.baseSounds.destroy[0]
+);
+
+}
 
     this.container =
       new PIXI.Container();
@@ -367,11 +854,36 @@ export class MagicalFallingEngine {
 
     this.enabled = false;
 
+    for (
+  const sprite of
+  this.activeFloaties
+) {
+
+  if (
+    sprite._updateFunction
+  ) {
+
+    PIXI.Ticker.shared.remove(
+      sprite._updateFunction
+    );
+
+  }
+
+}
+
+    this.activeFloaties = [];
+
+    this.spawnTimers = [];
+
+    this.lastSpawnPositions = [];
+
     if (this.container) {
 
       this.container.destroy({
         children: true
       });
+
+      this.container = null;
       
 
     }
@@ -381,9 +893,6 @@ export class MagicalFallingEngine {
   clearTimeout(timer);
 
 }
-        clearInterval(
-      this.spawnInterval
-    );
 
   }
 
@@ -501,6 +1010,17 @@ sprite.on("pointerdown", event => {
   event.stopPropagation();
 
   if (
+  !this.audioUnlocked
+) {
+
+  this.audioUnlocked =
+    true;
+
+  beginProgressiveWarmup();
+
+}
+
+  if (
   event.button !== 0
 ) return;
 
@@ -563,9 +1083,8 @@ sprite.lastInteraction =
     );
 
     playRandomSound(
-  CLAIM_THEMES[
-    playerTheme
-  ]?.sounds?.claim
+  playerTheme,
+  "claim"
 );
 
     console.log(
@@ -595,10 +1114,9 @@ sprite.lastInteraction =
   sprite.destroying =
     true;
 
-    playRandomSound(
-  CLAIM_THEMES[
-    sprite.claimedBy
-  ]?.sounds?.destroy
+   playRandomSound(
+  sprite.claimedBy,
+  "destroy"
 );
 
 });
@@ -766,6 +1284,9 @@ const speed =
   const overlay =
     sprite.claimOverlay;
 
+    const underlay =
+  sprite.claimUnderlay;
+
   overlay.alpha +=
   (
     overlay.targetAlpha -
@@ -830,6 +1351,16 @@ if (
 
 }
 
+const overlayAnim =
+  CLAIM_THEMES[
+    sprite.claimedBy
+  ]?.overlayAnimation;
+
+overlayAnim?.(
+  overlay,
+  sprite.claimUnderlay
+);
+
 }
 
       sprite.y -= speed;
@@ -846,13 +1377,17 @@ if (
 
       /* fade in */
 
-      if (sprite.alpha < 1) {
+      if (
+  !sprite.destroying &&
+  sprite.alpha < 1
+) {
 
-        sprite.alpha += 0.01;
+  sprite.alpha += 0.01;
 
-      }
-
+}
       /* remove */
+
+     if (!sprite.destroying) {
 
       const targetScale =
   sprite.hovered
@@ -865,6 +1400,8 @@ sprite.scale.x +=
 
 sprite.scale.y =
   sprite.scale.x;
+
+}
 
       if (sprite.destroying) {
 
