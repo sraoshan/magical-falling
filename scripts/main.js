@@ -13,10 +13,10 @@ Hooks.once("init", () => {
   {
 
     name:
-      "Landing Scene",
+      "Target Scene",
 
     hint:
-      "Scene where magical floaties appear.",
+      "Cena em que os floaties aparecem.",
 
     scope: "world",
 
@@ -88,43 +88,9 @@ Hooks.once("init", () => {
     }
   );
 
-    game.settings.register(
-    "magical-falling",
-    "startYVariance",
-    {
-      name: "Start Y Variance",
+    
 
-      hint:
-        "Variação vertical do spawn.",
-
-      scope: "world",
-
-      config: true,
-
-      type: Number,
-
-      default: 300
-    }
-  );
-
-  game.settings.register(
-    "magical-falling",
-    "endYVariance",
-    {
-      name: "End Y Variance",
-
-      hint:
-        "Variação vertical da destruição.",
-
-      scope: "world",
-
-      config: true,
-
-      type: Number,
-
-      default: 300
-    }
-  );
+  
 
   game.settings.register(
     "magical-falling",
@@ -147,6 +113,25 @@ Hooks.once("init", () => {
 
   game.settings.register(
     "magical-falling",
+    "startYVariance",
+    {
+      name: "Start Y Variance",
+
+      hint:
+        "Variação vertical do nascimento.",
+
+      scope: "world",
+
+      config: true,
+
+      type: Number,
+
+      default: 300
+    }
+  );
+
+  game.settings.register(
+    "magical-falling",
     "endY",
     {
       name: "Floatie End Y",
@@ -161,6 +146,25 @@ Hooks.once("init", () => {
       type: Number,
 
       default: -300
+    }
+  );
+
+  game.settings.register(
+    "magical-falling",
+    "endYVariance",
+    {
+      name: "End Y Variance",
+
+      hint:
+        "Variação vertical da destruição.",
+
+      scope: "world",
+
+      config: true,
+
+      type: Number,
+
+      default: 300
     }
   );
 
@@ -206,7 +210,7 @@ Hooks.once("init", () => {
     "magical-falling",
     "targetCount",
     {
-      name: "Quantidade de Floaties",
+      name: "Floatie Amount",
 
       hint:
         "Máximo simultâneo.",

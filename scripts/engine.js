@@ -119,7 +119,10 @@ console.log(
 
   (async () => {
 
-  while (true) {
+  while (
+  game.magicalFalling
+    ?.warmupActive
+) {
 
     await warmupSingleSound(
       theme,
@@ -149,6 +152,9 @@ console.log(
 const CLAIM_THEMES = {
 
   tarf: {
+
+    _cachedTexture:
+    null,
 
     image:
       "modules/magical-falling/assets/claims/bolha_tarf.webp",
@@ -271,6 +277,12 @@ sprite.y -= 0.8;
 
   sirius: {
 
+    _cachedTexture:
+    null,
+
+  _cachedUnderlay:
+    null,
+
   underlayImage:
     "modules/magical-falling/assets/claims/nebula_sirius.webp",
 
@@ -342,6 +354,8 @@ if (underlay) {
     1.25;
 
 }
+
+underlay.alpha = 1;
 
   if (underlay) {
 
@@ -428,10 +442,7 @@ sprite.y +=
    FLICKER
 ===================== */
 
-sprite.alpha *= 0.9;
-
-sprite.alpha +=
-  Math.random() * 0.08;
+sprite.alpha *= 0.86;
 
 /* =====================
    COLLAPSE
@@ -492,7 +503,7 @@ if (underlay) {
 ===================== */
 
 if (
-  Math.random() < 0.15
+  Math.random() < 0.08
 ) {
 
   const ghost =
@@ -548,6 +559,9 @@ if (
 
   };
 
+  ghost._fadeFunction =
+  fade;
+
   PIXI.Ticker.shared.add(
     fade
   );
@@ -560,8 +574,170 @@ if (
 
   phact: {
 
-    image:
-      "modules/magical-falling/assets/claims/aura_phact.webp",
+    _cachedTexture:
+    null,
+
+  _cachedUnderlay:
+    null,
+
+    featherTexture:
+  "modules/magical-falling/assets/claims/feather_phact.webp",
+
+    underlayImage:
+  "modules/magical-falling/assets/claims/ring_phact.webp",
+
+overlayImage:
+  "modules/magical-falling/assets/claims/aura_phact.webp",
+  
+    baseSounds: {
+
+  claim: [
+
+    "modules/magical-falling/assets/sounds/phact/light1.opus"
+
+  ],
+
+  destroy: [
+
+    "modules/magical-falling/assets/sounds/phact/wind1.opus"
+
+  ]
+
+},
+
+sounds: {
+
+  claim: [
+
+    "modules/magical-falling/assets/sounds/phact/light1.opus",
+    "modules/magical-falling/assets/sounds/phact/light2.opus",
+    "modules/magical-falling/assets/sounds/phact/light3.opus",
+    "modules/magical-falling/assets/sounds/phact/light4.opus",
+    "modules/magical-falling/assets/sounds/phact/light5.opus",
+    "modules/magical-falling/assets/sounds/phact/light6.opus"
+
+  ],
+
+  destroy: [
+
+    "modules/magical-falling/assets/sounds/phact/wind1.opus",
+    "modules/magical-falling/assets/sounds/phact/wind2.opus",
+    "modules/magical-falling/assets/sounds/phact/wind3.opus",
+    "modules/magical-falling/assets/sounds/phact/wind4.opus",
+    "modules/magical-falling/assets/sounds/phact/wind5.opus",
+    "modules/magical-falling/assets/sounds/phact/wind6.opus"
+
+  ]
+
+},
+
+loadedSounds: {
+
+  claim: [],
+
+  destroy: []
+
+},
+
+overlayAnimation(
+  overlay,
+  underlay
+) {
+
+  
+
+  overlay.targetScale =
+    1.12;
+
+  if (underlay) {
+
+    underlay.alpha +=
+  (
+    1 -
+    underlay.alpha
+  ) * 0.04;
+
+    underlay.baseScale =
+      1.15;
+
+    underlay.rotation +=
+      0.002;
+
+    const pulse =
+      1 +
+      Math.sin(
+        performance.now() *
+        0.0015
+      ) * 0.025;
+
+    underlay.scale.x =
+      underlay.baseScale *
+      pulse;
+
+    underlay.scale.y =
+      underlay.scale.x;
+
+  }
+
+  const t =
+  performance.now();
+
+/* =====================
+   ROTATION
+===================== */
+
+overlay.rotation +=
+  0.004;
+
+/* shimmer */
+
+  if (!overlay.bloomFinished) {
+
+  overlay.scale.x +=
+    (
+      overlay.targetScale -
+      overlay.scale.x
+    ) * 0.035;
+
+  overlay.scale.y =
+    overlay.scale.x;
+
+  if (
+    Math.abs(
+      overlay.targetScale -
+      overlay.scale.x
+    ) < 0.02
+  ) {
+
+    overlay.bloomFinished =
+      true;
+
+  }
+
+}
+
+/* subtle shimmer */
+
+overlay.skew.x =
+  Math.sin(
+    t * 0.0018
+  ) * 0.015;
+
+overlay.skew.y =
+  Math.cos(
+    t * 0.0015
+  ) * 0.015;
+/* =====================
+   LIGHT PULSE
+===================== */
+
+overlay.alpha =
+  0.72 +
+  Math.sin(
+    t * 0.004
+  ) * 0.12;
+
+},
 
     alpha: 0.6,
 
@@ -584,12 +760,176 @@ if (
 
     destroyAnimation(sprite) {
 
-      sprite.scale.x *= 0.96;
+      const overlay =
+  sprite.claimOverlay;
 
-      sprite.scale.y =
-        sprite.scale.x;
+const underlay =
+  sprite.claimUnderlay;
 
-      sprite.alpha -= 0.03;
+/* =====================
+   ASCENSION
+===================== */
+
+sprite.y -= 0.6;
+
+sprite.alpha *= 0.92;
+
+sprite.scale.x *= 0.97;
+
+sprite.scale.y =
+  sprite.scale.x;
+
+/* =====================
+   LIGHT
+===================== */
+
+sprite.tint =
+  0xFFF6CC;
+
+sprite.blendMode =
+  PIXI.BLEND_MODES.ADD;
+
+/* =====================
+   HALO
+===================== */
+
+if (overlay) {
+
+  overlay.rotation +=
+    0.01;
+
+  overlay.alpha *=
+    0.95;
+
+}
+
+if (underlay) {
+
+  underlay.rotation +=
+    0.006;
+
+  underlay.alpha *=
+    0.97;
+
+}
+
+/* =====================
+   FEATHERS
+===================== */
+
+if (
+  !sprite.featherBurst
+) {
+
+  sprite.featherBurst =
+    true;
+
+  const featherTexture =
+  CLAIM_THEMES.phact
+    ._featherTexture;
+
+  for (let i = 0; i < 6; i++) {
+
+    const feather =
+      new PIXI.Sprite(
+        featherTexture
+      );
+
+      feather.eventMode =
+  "none";
+
+feather.interactive =
+  false;
+
+    feather.anchor.set(0.5);
+
+    feather.x =
+      sprite.x +
+      rand(-12, 12);
+
+    feather.y =
+      sprite.y +
+      rand(-12, 12);
+
+    feather.scale.set(
+      rand(0.15, 0.28)
+    );
+
+    feather.alpha =
+      rand(0.6, 0.9);
+
+    feather.rotation =
+      rand(-1, 1);
+
+    feather.blendMode =
+      PIXI.BLEND_MODES.ADD;
+
+    sprite.parent.addChild(
+      feather
+    );
+
+    
+
+    const angle =
+  rand(0, Math.PI * 2);
+
+let velocityX =
+  Math.cos(angle) *
+  rand(1.2, 3.5);
+
+let velocityY =
+  Math.sin(angle) *
+  rand(1.2, 3.5);
+
+    const rot =
+      rand(-0.02, 0.02);
+
+    const fade = () => {
+
+      velocityX *= 0.97;
+
+velocityY *= 0.97;
+
+/* gravity */
+
+velocityY -= 0.08;
+
+feather.x +=
+  velocityX;
+
+feather.y +=
+  velocityY;
+
+      feather.rotation +=
+        rot;
+
+      feather.alpha *=
+        0.97;
+
+      if (
+        feather.alpha <= 0.02
+      ) {
+
+        PIXI.Ticker.shared.remove(
+          fade
+        );
+
+        feather.destroy();
+
+      }
+
+    };
+
+    feather._fadeFunction =
+  fade;
+
+    PIXI.Ticker.shared.add(
+      fade
+    );
+
+  }
+
+}
 
     }
 
@@ -615,6 +955,18 @@ async function applyClaimVisual(
   const config =
   CLAIM_THEMES[theme];
 
+  if (
+  config?.featherTexture &&
+  !config._featherTexture
+) {
+
+  config._featherTexture =
+    await foundry.canvas.loadTexture(
+      config.featherTexture
+    );
+
+}
+
 if (!config) return;
 
 const path =
@@ -625,20 +977,36 @@ const path =
 
   if (!path) return;
 
-  const texture =
+  if (!config._cachedTexture) {
+
+  config._cachedTexture =
     await foundry.canvas.loadTexture(
       path
     );
 
+}
 
-  if (theme === "sirius") {
+const texture =
+  config._cachedTexture;
 
-  const underTexture =
+
+  if (
+  theme === "sirius"
+  ||
+  theme === "phact"
+) {
+
+  if (!config._cachedUnderlay) {
+
+  config._cachedUnderlay =
     await foundry.canvas.loadTexture(
-
-      "modules/magical-falling/assets/claims/nebula_sirius.webp"
-
+      config.underlayImage
     );
+
+}
+
+const underTexture =
+  config._cachedUnderlay;
 
   const underlay =
     new PIXI.Sprite(
@@ -647,7 +1015,10 @@ const path =
 
   underlay.anchor.set(0.5);
 
-  underlay.alpha = 0.95;
+  underlay.alpha =
+  theme === "phact"
+    ? 0
+    : 0.95;;
 
   underlay.scale.set(1);
 
@@ -658,10 +1029,14 @@ const path =
 
   underlay.y = 0;
 
-  sprite.addChildAt(
-    underlay,
-    0
-  );
+  underlay.zIndex = -1;
+
+sprite.sortableChildren =
+  true;
+
+sprite.addChild(
+  underlay
+);
 
   sprite.claimUnderlay =
     underlay;
@@ -674,6 +1049,14 @@ const path =
     overlay.alpha = 0;
 
     overlay.scale.set(0.2);
+
+    if (theme === "phact") {
+
+  overlay.scale.set(0.02);
+
+  overlay.alpha = 0;
+
+}
 
   overlay.eventMode = "none";
 
@@ -753,12 +1136,17 @@ export class MagicalFallingEngine {
 
   constructor() {
 
+    this.warmupTask =
+  null;
+
+    this.warmupActive =
+  false;
+
     this.audioUnlocked =
       false;
 
     this.lastSpawnPositions = [];
 
-    this.spawnTimers = [];
 
     this.container = null;
 
@@ -775,6 +1163,12 @@ export class MagicalFallingEngine {
   }
 
   async start() {
+
+    this.warmupActive =
+  true;
+  
+  game.magicalFalling =
+  this;
 
     if (this.enabled) return;
 
@@ -821,13 +1215,29 @@ if (
 
   });
 
-  config.loadedSounds.claim.push(
-  config.baseSounds.claim[0]
-);
+  if (
+  !config.loadedSounds.claim.includes(
+    config.baseSounds.claim[0]
+  )
+) {
 
-config.loadedSounds.destroy.push(
-  config.baseSounds.destroy[0]
-);
+  config.loadedSounds.claim.push(
+    config.baseSounds.claim[0]
+  );
+
+}
+
+if (
+  !config.loadedSounds.destroy.includes(
+    config.baseSounds.destroy[0]
+  )
+) {
+
+  config.loadedSounds.destroy.push(
+    config.baseSounds.destroy[0]
+  );
+
+}
 
 }
 
@@ -855,6 +1265,9 @@ config.loadedSounds.destroy.push(
 
   stop() {
 
+    this.warmupActive =
+  false;
+
     this.enabled = false;
 
     for (
@@ -872,11 +1285,32 @@ config.loadedSounds.destroy.push(
 
   }
 
+  if (
+    sprite.claimOverlay?._fadeFunction
+  ) {
+
+    PIXI.Ticker.shared.remove(
+      sprite.claimOverlay
+        ._fadeFunction
+    );
+
+  }
+
+  if (
+    sprite.claimUnderlay?._fadeFunction
+  ) {
+
+    PIXI.Ticker.shared.remove(
+      sprite.claimUnderlay
+        ._fadeFunction
+    );
+
+  }
+
 }
 
     this.activeFloaties = [];
 
-    this.spawnTimers = [];
 
     this.lastSpawnPositions = [];
 
@@ -891,11 +1325,6 @@ config.loadedSounds.destroy.push(
 
     }
 
-    for (const timer of this.spawnTimers) {
-
-  clearTimeout(timer);
-
-}
 
   }
 
@@ -917,13 +1346,11 @@ config.loadedSounds.destroy.push(
     const nextDelay =
       rand(400, 1400);
 
-    const timer =
-      setTimeout(
+    setTimeout(
         spawn,
         nextDelay
       );
 
-    this.spawnTimers.push(timer);
 
   };
 
@@ -1296,7 +1723,12 @@ const speed =
     overlay.alpha
   ) * 0.12;
 
-overlay.scale.x +=
+if (
+  sprite.claimedBy !==
+  "phact"
+) {
+
+  overlay.scale.x +=
   (
     overlay.targetScale -
     overlay.scale.x
@@ -1304,6 +1736,8 @@ overlay.scale.x +=
 
   overlay.scale.y =
     overlay.scale.x;
+
+}
 
     const settled =
   Math.abs(
@@ -1430,7 +1864,10 @@ config?.destroyAnimation?.(
   }
 
 }
-      if (sprite.y < sprite.destroyY) {
+      if (
+  !sprite.destroying &&
+  sprite.y < sprite.destroyY
+) {
 
         ticker.remove(update);
 
@@ -1451,6 +1888,16 @@ config?.destroyAnimation?.(
 
   removeFloatie(sprite) {
 
+    if (
+  sprite._fadeFunction
+) {
+
+  PIXI.Ticker.shared.remove(
+    sprite._fadeFunction
+  );
+
+}
+
     this.activeFloaties =
       this.activeFloaties.filter(
         f => f !== sprite
@@ -1467,6 +1914,12 @@ config?.destroyAnimation?.(
       );
 
     }
+
+    sprite.claimOverlay =
+      null;
+
+    sprite.claimUnderlay =
+      null;
 
     sprite.destroy();
 

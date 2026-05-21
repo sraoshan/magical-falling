@@ -1,16 +1,20 @@
 import { MagicalLandingEngine }
   from "./engine.js";
 
-const TARGET_SCENE_NAME =
-  "Landing Page";
-
 let engine = null;
 
 Hooks.on("canvasReady", async () => {
 
-  if (
-    canvas.scene?.name !== TARGET_SCENE_NAME
-  ) return;
+  const targetScene =
+  game.settings.get(
+    "magical-falling",
+    "targetScene"
+  );
+
+if (
+  canvas.scene?.name !==
+  targetScene
+) return;
 
   engine = new MagicalLandingEngine();
 
